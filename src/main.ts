@@ -12,12 +12,7 @@ export default class DrawioPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings();
-    const webappDir = join(this.pluginDir(), 'webapp');
-    this.server = new ServerManager(webappDir, {
-      min: this.settings.serverPortMin,
-      max: this.settings.serverPortMax,
-      idleMs: this.settings.serverIdleTimeout * 1000,
-    });
+    this.server = this.buildServer();
     this.register(() => this.server.stop());
 
     const { registerDrawioCodeBlock } = await import('./codeblock/DrawioCodeBlock');
@@ -40,6 +35,9 @@ export default class DrawioPlugin extends Plugin {
         await leaf.openFile(file);
       },
     });
+
+    const { DrawioSettingTab } = await import('./settingsTab');
+    this.addSettingTab(new DrawioSettingTab(this.app, this));
   }
 
   onunload() {
@@ -83,5 +81,19 @@ export default class DrawioPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+  }
+
+  private buildServer(): ServerManager {
+    const webappDir = join(this.pluginDir(), 'webapp');
+    return new ServerManager(webappDir, {
+      min: this.settings.serverPortMin,
+      max: this.settings.serverPortMax,
+      idleMs: this.settings.serverIdleTimeout * 1000,
+    });
+  }
+
+  rebuildServer() {
+    this.server.stop();
+    this.server = this.buildServer();
   }
 }
