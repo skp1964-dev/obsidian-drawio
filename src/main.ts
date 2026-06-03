@@ -18,6 +18,9 @@ export default class DrawioPlugin extends Plugin {
       idleMs: this.settings.serverIdleTimeout * 1000,
     });
     this.register(() => this.server.stop());
+
+    const { registerDrawioCodeBlock } = await import('./codeblock/DrawioCodeBlock');
+    registerDrawioCodeBlock(this);
   }
 
   onunload() {
