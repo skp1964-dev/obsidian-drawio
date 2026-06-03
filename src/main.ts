@@ -27,6 +27,9 @@ export default class DrawioPlugin extends Plugin {
     this.registerView(DRAWIO_VIEW_TYPE, (leaf) => new DrawioFileView(leaf, this));
     this.registerExtensions([DRAWIO_FILE_EXT], DRAWIO_VIEW_TYPE);
 
+    const { registerDrawioEmbeds } = await import('./file/EmbedRenderer');
+    registerDrawioEmbeds(this);
+
     this.addCommand({
       id: 'create-drawio-file',
       name: 'Create new drawio diagram',
