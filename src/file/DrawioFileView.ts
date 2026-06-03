@@ -29,7 +29,7 @@ export class DrawioFileView extends TextFileView {
     renderPreview(preview, this.xml, {
       dark: this.plugin.settings.followObsidianTheme && this.plugin.isDark(),
     });
-    const editBtn = c.createEl('button', { cls: 'drawio-edit-btn' });
+    const editBtn = c.createEl('button', { cls: 'drawio-edit-btn', attr: { 'aria-label': 'Edit diagram' } });
     setIcon(editBtn.createSpan(), 'pencil');
     editBtn.createSpan({ text: 'Edit' });
     editBtn.addEventListener('click', () => {

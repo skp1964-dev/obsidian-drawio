@@ -8,6 +8,9 @@
 }
 .drawio-codeblock:hover .drawio-edit-btn,
 .drawio-embed:hover .drawio-edit-btn,
+.drawio-codeblock:focus-within .drawio-edit-btn,
+.drawio-embed:focus-within .drawio-edit-btn,
+.drawio-edit-btn:focus,
 .drawio-file-view .drawio-edit-btn { opacity: 1; }
 .drawio-error {
   padding: 8px 12px; color: var(--text-error);
