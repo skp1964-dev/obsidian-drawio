@@ -44,15 +44,18 @@ export class DrawioSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Server idle timeout (seconds)')
-      .setDesc('Stop the local drawio server after this idle period.')
+      .setDesc('Stop the local drawio server after this idle period (minimum 5).')
       .addText((t) => t
         .setValue(String(this.plugin.settings.serverIdleTimeout))
         .onChange(async (v) => {
           const n = Number(v);
-          if (Number.isFinite(n) && n > 0) {
+          if (Number.isFinite(n) && n >= 5) {
             this.plugin.settings.serverIdleTimeout = n;
             await this.plugin.saveSettings();
             this.plugin.rebuildServer();
+          } else if (v.trim() !== '') {
+            // Reject invalid/too-small values: restore the stored value.
+            t.setValue(String(this.plugin.settings.serverIdleTimeout));
           }
         }));
   }
