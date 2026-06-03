@@ -9,8 +9,7 @@
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint ."
+    "test:watch": "vitest"
   },
   "keywords": ["obsidian", "drawio", "diagrams"],
   "license": "MIT",

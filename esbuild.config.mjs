@@ -16,6 +16,7 @@ const context = await esbuild.context({
     '@codemirror/state', '@codemirror/view',
     '@lezer/common', '@lezer/highlight', '@lezer/lr',
     ...builtinModules,
+    'node:*',
   ],
   format: 'cjs',
   target: 'es2021',
@@ -26,5 +27,5 @@ const context = await esbuild.context({
   minify: prod,
 });
 
-if (prod) { await context.rebuild(); process.exit(0); }
+if (prod) { await context.rebuild(); await context.dispose(); process.exit(0); }
 else { await context.watch(); }

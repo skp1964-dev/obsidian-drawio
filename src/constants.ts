@@ -11,8 +11,8 @@ export const EMPTY_DIAGRAM =
 
 /** drawio embed iframe URL query params. */
 export function buildEmbedQuery(opts: { dark: boolean; libraries: boolean }): string {
-  const params = ['embed=1', 'proto=json', 'spin=1'];
-  if (opts.libraries) params.push('libraries=1');
-  if (opts.dark) params.push('dark=1');
-  return params.join('&');
+  const p = new URLSearchParams({ embed: '1', proto: 'json', spin: '1' });
+  if (opts.libraries) p.set('libraries', '1');
+  if (opts.dark) p.set('dark', '1');
+  return p.toString();
 }
