@@ -1,0 +1,20 @@
+.drawio-codeblock, .drawio-embed { position: relative; }
+.drawio-preview { width: 100%; overflow: auto; text-align: center; }
+.drawio-preview svg { max-width: 100%; height: auto; }
+.drawio-edit-btn {
+  position: absolute; top: 6px; right: 6px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 8px; cursor: pointer; opacity: 0; transition: opacity .15s;
+}
+.drawio-codeblock:hover .drawio-edit-btn,
+.drawio-embed:hover .drawio-edit-btn,
+.drawio-file-view .drawio-edit-btn { opacity: 1; }
+.drawio-error {
+  padding: 8px 12px; color: var(--text-error);
+  border: 1px solid var(--background-modifier-error); border-radius: 6px;
+}
+.drawio-modal { width: 90vw; height: 90vh; max-width: none; }
+.drawio-modal .modal-content { height: 100%; padding: 0; }
+.drawio-iframe { width: 100%; height: 100%; border: none; }
+.drawio-file-view { display: flex; flex-direction: column; height: 100%; }
+.drawio-file-view .drawio-preview { flex: 1; }
