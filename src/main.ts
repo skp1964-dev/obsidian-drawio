@@ -4,6 +4,7 @@ import { DrawioSettings, DEFAULT_SETTINGS } from './settings';
 import { ServerManager } from './server/ServerManager';
 import { DrawioModal } from './editor/DrawioModal';
 import type { DrawioSource } from './model/DrawioSource';
+import { DRAWIO_VIEW_TYPE, DRAWIO_FILE_EXT, EMPTY_DIAGRAM } from './constants';
 
 export default class DrawioPlugin extends Plugin {
   settings!: DrawioSettings;
@@ -21,6 +22,21 @@ export default class DrawioPlugin extends Plugin {
 
     const { registerDrawioCodeBlock } = await import('./codeblock/DrawioCodeBlock');
     registerDrawioCodeBlock(this);
+
+    const { DrawioFileView } = await import('./file/DrawioFileView');
+    this.registerView(DRAWIO_VIEW_TYPE, (leaf) => new DrawioFileView(leaf, this));
+    this.registerExtensions([DRAWIO_FILE_EXT], DRAWIO_VIEW_TYPE);
+
+    this.addCommand({
+      id: 'create-drawio-file',
+      name: 'Create new drawio diagram',
+      callback: async () => {
+        const path = `Untitled Diagram ${Date.now()}.drawio`;
+        const file = await this.app.vault.create(path, EMPTY_DIAGRAM);
+        const leaf = this.app.workspace.getLeaf(true);
+        await leaf.openFile(file);
+      },
+    });
   }
 
   onunload() {
