@@ -1,5 +1,5 @@
 // Downloads a pinned drawio webapp (draw.war = ZIP) and extracts static files to webapp/.
-import { createWriteStream, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { copyFileSync, createWriteStream, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -92,6 +92,10 @@ async function main() {
     for (const f of ['index.html', join('js', 'viewer.min.js')]) {
       if (!existsSync(join(OUT_DIR, f))) throw new Error(`Missing expected file in webapp: ${f}`);
     }
+
+    mkdirSync(join(process.cwd(), 'src', 'preview'), { recursive: true });
+    copyFileSync(join(OUT_DIR, 'js', 'viewer.min.js'),
+      join(process.cwd(), 'src', 'preview', 'viewer.min.txt'));
 
     await writeFile(join(OUT_DIR, 'DRAWIO_VERSION'), DRAWIO_VERSION + '\n');
     console.log(`drawio ${DRAWIO_VERSION} extracted to ${OUT_DIR}`);

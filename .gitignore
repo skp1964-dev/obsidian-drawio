@@ -4,3 +4,4 @@ main.js
 webapp/
 .vscode/
 data.json
+src/preview/viewer.min.txt
