@@ -29,8 +29,9 @@ export class DrawioFileView extends TextFileView {
     renderPreview(preview, this.xml, {
       dark: this.plugin.settings.followObsidianTheme && this.plugin.isDark(),
     });
-    const editBtn = c.createEl('button', { cls: 'drawio-edit-btn', text: 'Edit' });
+    const editBtn = c.createEl('button', { cls: 'drawio-edit-btn' });
     setIcon(editBtn.createSpan(), 'pencil');
+    editBtn.createSpan({ text: 'Edit' });
     editBtn.addEventListener('click', () => {
       if (!this.file) return;
       this.plugin.openEditor(new FileSource(this.app, this.file));

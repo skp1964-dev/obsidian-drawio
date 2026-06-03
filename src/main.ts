@@ -40,6 +40,7 @@ export default class DrawioPlugin extends Plugin {
   }
 
   onunload() {
+    this.app.workspace.detachLeavesOfType(DRAWIO_VIEW_TYPE);
     this.server?.stop();
   }
 
