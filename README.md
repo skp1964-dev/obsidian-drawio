@@ -17,9 +17,9 @@ Embed, preview, and edit [drawio](https://www.drawio.com/) diagrams in Obsidian 
 ## Install (manual / development)
 
 1. `npm install`
-2. `npm run fetch-drawio` — downloads the offline drawio webapp (~30 MB download; requires network access to GitHub, plus either `unzip` or `python3` on PATH for extraction). This populates `webapp/` and generates `src/preview/viewer.min.txt`.
+2. `npm run fetch-drawio` — downloads the offline drawio webapp (~40 MB `draw.war` download; requires network access to GitHub, plus either `unzip` or `python3` on PATH for extraction). This populates `webapp/` (~145 MB extracted on disk — the full offline editor with all shape libraries) and generates `src/preview/viewer.min.txt`.
 3. `npm run build`
-4. Copy `main.js`, `manifest.json`, `styles.css`, and the `webapp/` folder into your vault at `<vault>/.obsidian/plugins/obsidian-drawio/`.
+4. Copy `main.js`, `manifest.json`, `styles.css`, and the `webapp/` folder into your vault at `<vault>/.obsidian/plugins/obsidian-drawio/`. Note: `webapp/` is ~145 MB (the bundled offline editor), so the installed plugin folder is large.
 5. Enable **Drawio** in Obsidian's Community Plugins settings (desktop).
 
 ## Usage
