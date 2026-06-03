@@ -47,6 +47,7 @@ Embed, preview, and edit [drawio](https://www.drawio.com/) diagrams in Obsidian 
 
 - **Bundle size**: `main.js` includes drawio's `viewer.min.js` (~2.3 MB) inlined for offline previews, so the built `main.js` is ~2.4 MB. This is expected.
 - **Embed refresh**: an `![[file.drawio]]` preview refreshes when the containing note re-renders. Editing via the embed's own Edit button triggers that re-render. A `.drawio` file changed by an external program won't live-refresh an already-open note until it re-renders.
+- **Embed subpaths**: `![[file.drawio#something]]` (with a `#` suffix) is not recognized as a drawio embed and falls back to Obsidian's default rendering. Use a plain `![[file.drawio]]`.
 - **Desktop only**: see Requirements above.
 - **Security**: rendered SVG previews are sanitized (DOMPurify) and the local server binds to `127.0.0.1` only, serving solely the bundled `webapp/` directory.
 

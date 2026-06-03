@@ -1,5 +1,6 @@
-import { Plugin, FileSystemAdapter } from 'obsidian';
+import { Plugin, FileSystemAdapter, Notice } from 'obsidian';
 import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 import { DrawioSettings, DEFAULT_SETTINGS } from './settings';
 import { ServerManager } from './server/ServerManager';
 import { DrawioModal } from './editor/DrawioModal';
@@ -57,6 +58,12 @@ export default class DrawioPlugin extends Plugin {
   async resolveBaseUrl(): Promise<string> {
     if (this.settings.drawioMode === 'custom' && this.settings.customDrawioUrl) {
       return this.settings.customDrawioUrl;
+    }
+    const indexPath = join(this.pluginDir(), 'webapp', 'index.html');
+    if (!existsSync(indexPath)) {
+      const msg = 'Drawio: bundled editor not found. Copy the plugin\'s "webapp" folder into its plugin directory (or run "npm run fetch-drawio" when developing).';
+      new Notice(msg, 10000);
+      throw new Error(msg);
     }
     const port = await this.server.ensureStarted();
     this.server.touch();
