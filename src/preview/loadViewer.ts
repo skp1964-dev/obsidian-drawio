@@ -1,17 +1,18 @@
 // @ts-expect-error - imported as raw text via esbuild text loader
 import viewerSource from './viewer.min.txt';
 
-let injected = false;
+const SENTINEL = 'drawioViewerLoaded';
 
 /**
- * Inject drawio's GraphViewer (viewer.min.js) into the document exactly once.
- * Sets offline globals BEFORE injection so the viewer never reaches out to
- * viewer.diagrams.net for stylesheets/resources/proxy.
+ * Inject drawio's GraphViewer (viewer.min.js) into the given document exactly
+ * once PER DOCUMENT (so pop-out windows each get their own copy). Sets offline
+ * globals BEFORE injection so the viewer never reaches out to viewer.diagrams.net
+ * for stylesheets/resources/proxy.
  */
 export function ensureViewerLoaded(doc: Document = document): void {
-  if (injected) return;
+  if (doc.head.dataset[SENTINEL] === '1') return;
   const win = doc.defaultView as unknown as Record<string, unknown>;
-  if (win && win.GraphViewer) { injected = true; return; }
+  if (win && win.GraphViewer) { doc.head.dataset[SENTINEL] = '1'; return; }
   if (win) {
     // Keep everything local/offline.
     win.mxLoadResources = false;
@@ -25,7 +26,7 @@ export function ensureViewerLoaded(doc: Document = document): void {
   const script = doc.createElement('script');
   script.textContent = viewerSource as unknown as string;
   doc.head.appendChild(script);
-  injected = true;
+  doc.head.dataset[SENTINEL] = '1';
 }
 
 interface GraphViewerStatic {
@@ -37,5 +38,7 @@ export function getGraphViewer(win: Window = window): GraphViewerStatic | null {
   return w.GraphViewer ?? null;
 }
 
-/** Test-only: reset the injected flag. */
-export function __resetViewerForTests(): void { injected = false; }
+/** Test-only: clear the per-document injection sentinel. */
+export function __resetViewerForTests(doc: Document = document): void {
+  delete doc.head.dataset[SENTINEL];
+}
