@@ -16,4 +16,19 @@ describe('sanitizeSvg', () => {
     expect(out).not.toContain('onload');
     expect(out).not.toContain('onclick');
   });
+
+  it('strips external href from <use> elements', () => {
+    const out = sanitizeSvg('<svg><use href="http://evil.com/evil.svg#x"/></svg>');
+    expect(out).not.toContain('http://evil.com');
+  });
+
+  it('strips external xlink:href from <use> elements', () => {
+    const out = sanitizeSvg('<svg><use xlink:href="https://evil.com/evil.svg#x"/></svg>');
+    expect(out).not.toContain('evil.com');
+  });
+
+  it('keeps internal fragment href on <use> elements', () => {
+    const out = sanitizeSvg('<svg><use href="#sym1"/></svg>');
+    expect(out).toContain('#sym1');
+  });
 });
