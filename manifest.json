@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "minAppVersion": "1.0.0",
   "description": "Embed, preview and edit drawio diagrams in Obsidian, fully offline.",
-  "author": "liangsycmail",
-  "authorUrl": "https://github.com/liangsycmail/obsidian-drawio",
+  "author": "doge-liang",
+  "authorUrl": "https://github.com/doge-liang/obsidian-drawio",
   "isDesktopOnly": true
 }
