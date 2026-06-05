@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildLoadMessage, buildExportMessage, parseDrawioEvent } from '../src/editor/embedMessages';
+import { buildLoadMessage, buildExportMessage, buildConfigureMessage, parseDrawioEvent } from '../src/editor/embedMessages';
 
 describe('embedMessages', () => {
   it('builds a load message with autosave and theme', () => {
@@ -10,6 +10,11 @@ describe('embedMessages', () => {
   it('builds an export-svg message', () => {
     const msg = JSON.parse(buildExportMessage('svg'));
     expect(msg).toEqual({ action: 'export', format: 'svg' });
+  });
+
+  it('builds a configure message that disables compression', () => {
+    const msg = JSON.parse(buildConfigureMessage());
+    expect(msg).toEqual({ action: 'configure', config: { compressXml: false } });
   });
 
   it('parses an init event', () => {

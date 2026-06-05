@@ -1,5 +1,6 @@
-import { MarkdownPostProcessorContext, setIcon } from 'obsidian';
+import { MarkdownPostProcessorContext } from 'obsidian';
 import { renderPreview } from '../preview/ViewerRenderer';
+import { addEditHint } from '../preview/editHint';
 import { CodeBlockSource } from './CodeBlockSource';
 import type DrawioPlugin from '../main';
 
@@ -16,16 +17,13 @@ function renderCodeBlock(
   ctx: MarkdownPostProcessorContext,
 ) {
   const wrapper = el.createDiv({ cls: 'drawio-codeblock' });
+  wrapper.setAttribute('title', 'Click to edit diagram');
   const preview = wrapper.createDiv({ cls: 'drawio-preview' });
   renderPreview(preview, source, { dark: plugin.settings.followObsidianTheme && plugin.isDark() });
+  addEditHint(wrapper);
 
-  const editBtn = wrapper.createEl('button', {
-    cls: 'drawio-edit-btn',
-    attr: { 'aria-label': 'Edit diagram' },
-  });
-  setIcon(editBtn, 'pencil');
-  editBtn.addEventListener('click', () => {
-    const src = new CodeBlockSource(plugin.app, ctx, el, source);
-    plugin.openEditor(src);
+  // Click anywhere on the diagram to edit (the centered hint shows on hover).
+  wrapper.addEventListener('click', () => {
+    plugin.openEditor(new CodeBlockSource(plugin.app, ctx, el, source));
   });
 }

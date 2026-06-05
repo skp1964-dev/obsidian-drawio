@@ -1,75 +1,36 @@
 import { App, Modal, Notice } from 'obsidian';
 import { DrawioSource } from '../model/DrawioSource';
-import { buildLoadMessage, parseDrawioEvent } from './embedMessages';
-import { buildEmbedQuery } from '../constants';
+import { DrawioEditor, DrawioEditorDeps } from './DrawioEditor';
 
-export interface DrawioModalDeps {
-  /** Resolve the editor base URL (local server origin or custom URL). */
-  resolveBaseUrl(): Promise<string>;
-  isDark(): boolean;
-  showLibraries(): boolean;
-}
-
+/**
+ * Full-screen modal wrapping a {@link DrawioEditor}. Used for editing code-block
+ * and `![[file.drawio]]` embed diagrams without leaving the note.
+ */
 export class DrawioModal extends Modal {
-  private iframe: HTMLIFrameElement | null = null;
-  private onMessage: ((e: MessageEvent) => void) | null = null;
-  private origin = '';
+  private editor: DrawioEditor | null = null;
 
-  constructor(app: App, private source: DrawioSource, private deps: DrawioModalDeps) {
+  constructor(app: App, private source: DrawioSource, private deps: DrawioEditorDeps) {
     super(app);
   }
 
   async onOpen() {
     this.modalEl.addClass('drawio-modal');
     this.titleEl.setText(this.source.title());
-    const base = await this.deps.resolveBaseUrl();
-    this.origin = new URL(base).origin;
-    const q = buildEmbedQuery({ dark: this.deps.isDark(), libraries: this.deps.showLibraries() });
-    const url = `${base}${base.includes('?') ? '&' : '?'}${q}`;
-
-    this.iframe = this.contentEl.createEl('iframe', { cls: 'drawio-iframe' });
-    this.iframe.setAttribute('src', url);
-
-    this.onMessage = (e: MessageEvent) => this.handle(e);
-    window.addEventListener('message', this.onMessage);
-  }
-
-  private async handle(e: MessageEvent) {
-    if (e.source !== this.iframe?.contentWindow) return;
-    if (this.origin !== 'null' && e.origin !== this.origin) return;
-    const ev = parseDrawioEvent(e.data);
-    if (!ev) return;
-    switch (ev.event) {
-      case 'init': {
-        const xml = await this.source.read();
-        this.post(buildLoadMessage(xml, { dark: this.deps.isDark() }));
-        break;
-      }
-      case 'save':
-      case 'autosave': {
-        try {
-          await this.source.write((ev as { xml: string }).xml);
-        } catch (err) {
-          new Notice('Drawio: failed to save diagram');
-          console.error(err);
-        }
-        if (ev.event === 'save' && (ev as { exit?: boolean }).exit) this.close();
-        break;
-      }
-      case 'exit':
-        this.close();
-        break;
+    try {
+      this.editor = new DrawioEditor(this.contentEl, this.source, this.deps, {
+        onExit: () => this.close(),
+      });
+      await this.editor.mount();
+    } catch (err) {
+      console.error('[drawio] failed to open editor:', err);
+      new Notice('Drawio: failed to open editor — see console (Ctrl+Shift+I)');
+      this.contentEl.createDiv({ cls: 'drawio-error', text: String(err) });
     }
   }
 
-  private post(message: string) {
-    this.iframe?.contentWindow?.postMessage(message, this.origin === 'null' ? '*' : this.origin);
-  }
-
   onClose() {
-    if (this.onMessage) window.removeEventListener('message', this.onMessage);
-    this.onMessage = null;
-    this.iframe = null;
+    this.editor?.destroy();
+    this.editor = null;
     this.contentEl.empty();
   }
 }

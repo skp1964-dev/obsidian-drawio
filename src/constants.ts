@@ -9,9 +9,10 @@ export const EMPTY_DIAGRAM =
   'pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">' +
   '<root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel></diagram></mxfile>';
 
-/** drawio embed iframe URL query params. */
+/** drawio embed iframe URL query params. `configure=1` lets us disable XML
+ *  compression so saved diagrams are readable (and code blocks are formattable). */
 export function buildEmbedQuery(opts: { dark: boolean; libraries: boolean }): string {
-  const p = new URLSearchParams({ embed: '1', proto: 'json', spin: '1' });
+  const p = new URLSearchParams({ embed: '1', proto: 'json', spin: '1', configure: '1' });
   if (opts.libraries) p.set('libraries', '1');
   if (opts.dark) p.set('dark', '1');
   return p.toString();

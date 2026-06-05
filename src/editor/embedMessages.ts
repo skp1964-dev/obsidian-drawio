@@ -15,6 +15,14 @@ export function buildExportMessage(format: 'svg' | 'png' | 'xmlpng'): string {
   return JSON.stringify({ action: 'export', format });
 }
 
+/**
+ * Response to the editor's `configure` event. We disable XML compression so saved
+ * diagrams are human-readable mxGraphModel XML (not a base64 blob).
+ */
+export function buildConfigureMessage(): string {
+  return JSON.stringify({ action: 'configure', config: { compressXml: false } });
+}
+
 export function parseDrawioEvent(raw: unknown): DrawioEvent | null {
   if (typeof raw !== 'string') return null;
   let obj: unknown;

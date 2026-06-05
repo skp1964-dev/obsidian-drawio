@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { DrawioSettings, DEFAULT_SETTINGS } from './settings';
 import { ServerManager } from './server/ServerManager';
 import { DrawioModal } from './editor/DrawioModal';
+import type { DrawioEditorDeps } from './editor/DrawioEditor';
 import type { DrawioSource } from './model/DrawioSource';
 import { DRAWIO_VIEW_TYPE, DRAWIO_FILE_EXT, EMPTY_DIAGRAM } from './constants';
 
@@ -74,12 +75,19 @@ export default class DrawioPlugin extends Plugin {
     return document.body.hasClass('theme-dark');
   }
 
-  openEditor(source: DrawioSource) {
-    new DrawioModal(this.app, source, {
+  /** Shared deps for any DrawioEditor surface (modal or inline file view). */
+  editorDeps(): DrawioEditorDeps {
+    return {
       resolveBaseUrl: () => this.resolveBaseUrl(),
       isDark: () => this.settings.followObsidianTheme && this.isDark(),
       showLibraries: () => this.settings.showLibraries,
-    }).open();
+      acquireServer: () => this.server.acquire(),
+      releaseServer: () => this.server.release(),
+    };
+  }
+
+  openEditor(source: DrawioSource) {
+    new DrawioModal(this.app, source, this.editorDeps()).open();
   }
 
   async loadSettings() {

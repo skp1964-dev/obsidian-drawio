@@ -11,7 +11,11 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["obsidian", "drawio", "diagrams"],
+  "keywords": [
+    "obsidian",
+    "drawio",
+    "diagrams"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.15.17",

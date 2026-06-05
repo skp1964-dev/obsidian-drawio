@@ -18,8 +18,21 @@ export class ServerManager {
   private port = 0;
   private idleTimer: NodeJS.Timeout | null = null;
   private realRoot = '';
+  private pins = 0;
 
   constructor(private readonly root: string, private readonly opts: ServerOptions) {}
+
+  /** Pin the server open (e.g. while an editor is mounted). Reference-counted. */
+  acquire(): void {
+    this.pins++;
+    if (this.idleTimer) { clearTimeout(this.idleTimer); this.idleTimer = null; }
+  }
+
+  /** Release a pin; once none remain, restart the idle countdown. */
+  release(): void {
+    if (this.pins > 0) this.pins--;
+    if (this.pins === 0) this.touch();
+  }
 
   async ensureStarted(): Promise<number> {
     this.touch();
@@ -34,8 +47,9 @@ export class ServerManager {
     return this.port;
   }
 
-  /** Reset the idle countdown; call on each editor open/activity. */
+  /** Reset the idle countdown; call on each editor open/activity. No-op while pinned. */
   touch(): void {
+    if (this.pins > 0) return;
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.idleTimer = setTimeout(() => this.stop(), this.opts.idleMs);
   }

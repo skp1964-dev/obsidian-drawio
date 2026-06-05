@@ -1,6 +1,7 @@
 import { App, MarkdownPostProcessorContext, TFile } from 'obsidian';
 import { DrawioSource } from '../model/DrawioSource';
 import { replaceCodeBlockBody } from '../model/codeBlockEdit';
+import { formatDrawioXml } from '../model/formatXml';
 import { locateDrawioBlock } from './locateBlock';
 
 /** Editable source backed by a ```drawio block inside a markdown note. */
@@ -36,8 +37,11 @@ export class CodeBlockSource implements DrawioSource {
     }
     if (!range) throw new Error('Drawio: cannot locate code block to update');
 
-    const next = replaceCodeBlockBody(doc, range.start, range.end, xml.trim());
+    // Store the XML pretty-printed over multiple lines so the code-block source
+    // stays readable and wraps in the editor (drawio emits one very long line).
+    const formatted = formatDrawioXml(xml);
+    const next = replaceCodeBlockBody(doc, range.start, range.end, formatted);
     await this.app.vault.modify(file, next);
-    this.lastBody = xml.trim();
+    this.lastBody = formatted;
   }
 }
