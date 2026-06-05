@@ -16,7 +16,7 @@ export interface ServerOptions { min: number; max: number; idleMs: number; }
 export class ServerManager {
   private server: Server | null = null;
   private port = 0;
-  private idleTimer: NodeJS.Timeout | null = null;
+  private idleTimer: number | null = null;
   private realRoot = '';
   private pins = 0;
 
@@ -25,7 +25,7 @@ export class ServerManager {
   /** Pin the server open (e.g. while an editor is mounted). Reference-counted. */
   acquire(): void {
     this.pins++;
-    if (this.idleTimer) { clearTimeout(this.idleTimer); this.idleTimer = null; }
+    if (this.idleTimer) { window.clearTimeout(this.idleTimer); this.idleTimer = null; }
   }
 
   /** Release a pin; once none remain, restart the idle countdown. */
@@ -50,12 +50,12 @@ export class ServerManager {
   /** Reset the idle countdown; call on each editor open/activity. No-op while pinned. */
   touch(): void {
     if (this.pins > 0) return;
-    if (this.idleTimer) clearTimeout(this.idleTimer);
-    this.idleTimer = setTimeout(() => this.stop(), this.opts.idleMs);
+    if (this.idleTimer) window.clearTimeout(this.idleTimer);
+    this.idleTimer = window.setTimeout(() => this.stop(), this.opts.idleMs);
   }
 
   stop(): void {
-    if (this.idleTimer) { clearTimeout(this.idleTimer); this.idleTimer = null; }
+    if (this.idleTimer) { window.clearTimeout(this.idleTimer); this.idleTimer = null; }
     if (this.server) { this.server.close(); this.server = null; this.port = 0; }
   }
 

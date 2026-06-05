@@ -29,7 +29,7 @@ export default class DrawioPlugin extends Plugin {
 
     this.addCommand({
       id: 'create-drawio-file',
-      name: 'Create new drawio diagram',
+      name: 'Create new diagram',
       callback: async () => {
         const path = `Untitled Diagram ${Date.now()}.drawio`;
         const file = await this.app.vault.create(path, EMPTY_DIAGRAM);
@@ -79,7 +79,7 @@ export default class DrawioPlugin extends Plugin {
   }
 
   isDark(): boolean {
-    return document.body.hasClass('theme-dark');
+    return activeDocument.body.hasClass('theme-dark');
   }
 
   /** Shared deps for any DrawioEditor surface (modal or inline file view). */
@@ -98,7 +98,8 @@ export default class DrawioPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const saved = (await this.loadData()) as Partial<DrawioSettings> | null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, saved ?? {});
   }
 
   async saveSettings() {

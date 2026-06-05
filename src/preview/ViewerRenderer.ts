@@ -78,7 +78,7 @@ export function renderPreview(el: HTMLElement, xml: string, opts: RenderOptions)
   // With `check-visible-state: false` the SVG is produced synchronously.
   const immediate = mount.querySelector('svg');
   if (immediate) {
-    finalize(immediate as SVGSVGElement);
+    finalize(immediate);
     return true;
   }
 
@@ -88,7 +88,7 @@ export function renderPreview(el: HTMLElement, xml: string, opts: RenderOptions)
     const svg = mount.querySelector('svg');
     if (svg) {
       observer.disconnect();
-      finalize(svg as SVGSVGElement);
+      finalize(svg);
     }
   });
   observer.observe(mount, { childList: true, subtree: true });
@@ -119,8 +119,14 @@ function extractSizedSvg(svg: SVGSVGElement, targetDoc: Document): Node | null {
   const w = parseFloat(svg.style.minWidth) || rect.width || 0;
   const h = parseFloat(svg.style.minHeight) || rect.height || 0;
 
-  const frag = sanitizeSvgToNode(svg.outerHTML, targetDoc) as DocumentFragment;
-  const out = frag.querySelector ? frag.querySelector('svg') : null;
+  const frag = sanitizeSvgToNode(svg.outerHTML, targetDoc);
+  let out: SVGSVGElement | null = null;
+  for (const node of Array.from(frag.childNodes)) {
+    if (node.nodeType === 1 && (node as Element).localName.toLowerCase() === 'svg') {
+      out = node as SVGSVGElement;
+      break;
+    }
+  }
   if (!out) return null;
 
   if (w > 0 && h > 0) {

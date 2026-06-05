@@ -1,70 +1,69 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
-import type { DrawioMode } from './settings';
+import { App, PluginSettingTab } from 'obsidian';
+import type { SettingDefinitionItem } from 'obsidian';
 import type DrawioPlugin from './main';
 
 export class DrawioSettingTab extends PluginSettingTab {
   constructor(app: App, private plugin: DrawioPlugin) { super(app, plugin); }
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+  // Declarative settings (Obsidian 1.13+). Control `key`s match DrawioSettings
+  // fields, so the default getControlValue/setControlValue read and persist them.
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    const mode = () => this.plugin.settings.drawioMode;
+    return [
+      {
+        name: 'Editor source',
+        desc: 'Online loads the editor from diagrams.net (no setup). Offline uses a bundled webapp served locally (run "npm run fetch-drawio" first). Or point at a custom embed URL.',
+        control: {
+          type: 'dropdown',
+          key: 'drawioMode',
+          options: {
+            online: 'Online (diagrams.net)',
+            offline: 'Offline (bundled webapp)',
+            custom: 'Custom URL',
+          },
+        },
+      },
+      {
+        name: 'Network use',
+        desc: 'The editor UI is loaded from diagrams.net. Your diagram content stays in the browser and is not uploaded; only the editor assets are fetched over the network.',
+        visible: () => mode() === 'online',
+      },
+      {
+        name: 'Custom drawio URL',
+        desc: 'Embed URL, e.g. https://embed.diagrams.net/',
+        visible: () => mode() === 'custom',
+        control: { type: 'text', key: 'customDrawioUrl', placeholder: 'https://embed.diagrams.net/' },
+      },
+      {
+        name: 'Follow Obsidian theme',
+        desc: 'Match the editor to the light/dark theme.',
+        control: { type: 'toggle', key: 'followObsidianTheme' },
+      },
+      {
+        name: 'Show shape libraries',
+        desc: "Show the editor's shape library panel.",
+        control: { type: 'toggle', key: 'showLibraries' },
+      },
+      {
+        name: 'Server idle timeout (seconds)',
+        desc: 'Stop the local drawio server after this idle period. Only used in Offline mode.',
+        visible: () => mode() === 'offline',
+        control: {
+          type: 'number',
+          key: 'serverIdleTimeout',
+          min: 5,
+          validate: (v: number) =>
+            (Number.isFinite(v) && v >= 5 ? undefined : 'Enter a number of seconds (minimum 5).'),
+        },
+      },
+    ];
+  }
 
-    new Setting(containerEl)
-      .setName('Editor source')
-      .setDesc('Online loads the editor from diagrams.net (no setup). Offline uses a bundled webapp served locally (run "npm run fetch-drawio" first). Or point at a custom embed URL.')
-      .addDropdown((d) => d
-        .addOption('online', 'Online (diagrams.net)')
-        .addOption('offline', 'Offline (bundled webapp)')
-        .addOption('custom', 'Custom URL')
-        .setValue(this.plugin.settings.drawioMode)
-        .onChange(async (v) => {
-          this.plugin.settings.drawioMode = v as DrawioMode;
-          await this.plugin.saveSettings();
-          this.display();
-        }));
-
-    if (this.plugin.settings.drawioMode === 'online') {
-      new Setting(containerEl).setDesc(
-        'The editor UI is loaded from diagrams.net. Your diagram content stays in the browser and is not uploaded; only the editor assets are fetched over the network.',
-      );
-    }
-
-    if (this.plugin.settings.drawioMode === 'custom') {
-      new Setting(containerEl)
-        .setName('Custom drawio URL')
-        .setDesc('Embed URL, e.g. https://embed.diagrams.net/')
-        .addText((t) => t
-          .setValue(this.plugin.settings.customDrawioUrl)
-          .onChange(async (v) => { this.plugin.settings.customDrawioUrl = v.trim(); await this.plugin.saveSettings(); }));
-    }
-
-    new Setting(containerEl)
-      .setName('Follow Obsidian theme')
-      .addToggle((t) => t
-        .setValue(this.plugin.settings.followObsidianTheme)
-        .onChange(async (v) => { this.plugin.settings.followObsidianTheme = v; await this.plugin.saveSettings(); }));
-
-    new Setting(containerEl)
-      .setName('Show shape libraries')
-      .addToggle((t) => t
-        .setValue(this.plugin.settings.showLibraries)
-        .onChange(async (v) => { this.plugin.settings.showLibraries = v; await this.plugin.saveSettings(); }));
-
-    new Setting(containerEl)
-      .setName('Server idle timeout (seconds)')
-      .setDesc('Stop the local drawio server after this idle period (minimum 5).')
-      .addText((t) => t
-        .setValue(String(this.plugin.settings.serverIdleTimeout))
-        .onChange(async (v) => {
-          const n = Number(v);
-          if (Number.isFinite(n) && n >= 5) {
-            this.plugin.settings.serverIdleTimeout = n;
-            await this.plugin.saveSettings();
-            this.plugin.rebuildServer();
-          } else if (v.trim() !== '') {
-            // Reject invalid/too-small values: restore the stored value.
-            t.setValue(String(this.plugin.settings.serverIdleTimeout));
-          }
-        }));
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    await super.setControlValue(key, value);
+    // Re-render so conditional rows (custom URL, idle timeout, the online note)
+    // reflect the new editor source; restart the server with the new timeout.
+    if (key === 'drawioMode') this.update();
+    else if (key === 'serverIdleTimeout') this.plugin.rebuildServer();
   }
 }

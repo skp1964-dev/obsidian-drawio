@@ -36,7 +36,14 @@ const SAFE_DATA = /^data:image\/(?:png|jpe?g|gif|webp|bmp|x-icon|vnd\.microsoft\
  * which defeats those obfuscations.
  */
 function isUnsafeUrl(value: string): boolean {
-  const norm = value.replace(/[\x00-\x20]+/g, '').toLowerCase();
+  // Drop every ASCII whitespace/control char (code points 0–32), matching how
+  // browsers normalise a URL before resolving its scheme. Done char-by-char to
+  // avoid a control-character regex literal.
+  let norm = '';
+  for (let i = 0; i < value.length; i++) {
+    if (value.charCodeAt(i) > 0x20) norm += value[i];
+  }
+  norm = norm.toLowerCase();
   if (SCRIPT_SCHEME.test(norm)) return true;
   // Allow only safe raster data images; block data:text/html, data:image/svg+xml, etc.
   if (norm.startsWith('data:') && !SAFE_DATA.test(norm)) return true;
@@ -95,8 +102,9 @@ function scrub(root: Element): void {
   }
 }
 
-function parseInert(svg: string, win: Window & typeof globalThis): HTMLElement {
-  const doc = new win.DOMParser().parseFromString(svg, 'text/html');
+function parseInert(svg: string): HTMLElement {
+  // DOMParser produces an inert document: images don't load and scripts don't run.
+  const doc = new DOMParser().parseFromString(svg, 'text/html');
   scrub(doc.body);
   return doc.body;
 }
@@ -105,9 +113,8 @@ function parseInert(svg: string, win: Window & typeof globalThis): HTMLElement {
  * Sanitize SVG markup and return it as a DOM fragment imported into `targetDoc`,
  * ready to insert. Preserves foreignObject/XHTML labels; strips XSS vectors.
  */
-export function sanitizeSvgToNode(svg: string, targetDoc: Document = document): Node {
-  const win = (targetDoc.defaultView ?? window) as Window & typeof globalThis;
-  const body = parseInert(svg, win);
+export function sanitizeSvgToNode(svg: string, targetDoc: Document = activeDocument): Node {
+  const body = parseInert(svg);
   const frag = targetDoc.createDocumentFragment();
   for (const child of Array.from(body.childNodes)) frag.appendChild(targetDoc.importNode(child, true));
   return frag;
@@ -115,6 +122,5 @@ export function sanitizeSvgToNode(svg: string, targetDoc: Document = document): 
 
 /** Sanitize SVG markup and return it as a string (used by tests / non-DOM callers). */
 export function sanitizeSvg(svg: string): string {
-  const body = parseInert(svg, window as Window & typeof globalThis);
-  return body.innerHTML;
+  return parseInert(svg).innerHTML;
 }

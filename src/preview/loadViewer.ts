@@ -9,7 +9,7 @@ const SENTINEL = 'drawioViewerLoaded';
  * globals BEFORE injection so the viewer never reaches out to viewer.diagrams.net
  * for stylesheets/resources/proxy.
  */
-export function ensureViewerLoaded(doc: Document = document): void {
+export function ensureViewerLoaded(doc: Document = activeDocument): void {
   if (doc.head.dataset[SENTINEL] === '1') return;
   const win = doc.defaultView as unknown as Record<string, unknown>;
   if (win && win.GraphViewer) { doc.head.dataset[SENTINEL] = '1'; return; }
@@ -39,6 +39,6 @@ export function getGraphViewer(win: Window = window): GraphViewerStatic | null {
 }
 
 /** Test-only: clear the per-document injection sentinel. */
-export function __resetViewerForTests(doc: Document = document): void {
+export function __resetViewerForTests(doc: Document = activeDocument): void {
   delete doc.head.dataset[SENTINEL];
 }

@@ -50,7 +50,7 @@ export class DrawioEditor {
     this.iframe.addEventListener('error', (ev) => console.error('Drawio: editor iframe failed to load', ev));
     this.iframe.setAttribute('src', url);
 
-    this.onMessage = (e: MessageEvent) => this.handle(e);
+    this.onMessage = (e: MessageEvent) => { void this.handle(e); };
     window.addEventListener('message', this.onMessage);
   }
 
