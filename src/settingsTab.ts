@@ -1,4 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
+import type { DrawioMode } from './settings';
 import type DrawioPlugin from './main';
 
 export class DrawioSettingTab extends PluginSettingTab {
@@ -10,16 +11,23 @@ export class DrawioSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Editor source')
-      .setDesc('Use the bundled offline drawio, or a custom/online URL.')
+      .setDesc('Online loads the editor from diagrams.net (no setup). Offline uses a bundled webapp served locally (run "npm run fetch-drawio" first). Or point at a custom embed URL.')
       .addDropdown((d) => d
-        .addOption('offline', 'Offline (bundled)')
+        .addOption('online', 'Online (diagrams.net)')
+        .addOption('offline', 'Offline (bundled webapp)')
         .addOption('custom', 'Custom URL')
         .setValue(this.plugin.settings.drawioMode)
         .onChange(async (v) => {
-          this.plugin.settings.drawioMode = v as 'offline' | 'custom';
+          this.plugin.settings.drawioMode = v as DrawioMode;
           await this.plugin.saveSettings();
           this.display();
         }));
+
+    if (this.plugin.settings.drawioMode === 'online') {
+      new Setting(containerEl).setDesc(
+        'The editor UI is loaded from diagrams.net. Your diagram content stays in the browser and is not uploaded; only the editor assets are fetched over the network.',
+      );
+    }
 
     if (this.plugin.settings.drawioMode === 'custom') {
       new Setting(containerEl)

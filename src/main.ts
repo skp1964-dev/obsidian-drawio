@@ -6,7 +6,7 @@ import { ServerManager } from './server/ServerManager';
 import { DrawioModal } from './editor/DrawioModal';
 import type { DrawioEditorDeps } from './editor/DrawioEditor';
 import type { DrawioSource } from './model/DrawioSource';
-import { DRAWIO_VIEW_TYPE, DRAWIO_FILE_EXT, EMPTY_DIAGRAM } from './constants';
+import { DRAWIO_VIEW_TYPE, DRAWIO_FILE_EXT, EMPTY_DIAGRAM, ONLINE_DRAWIO_URL } from './constants';
 
 export default class DrawioPlugin extends Plugin {
   settings!: DrawioSettings;
@@ -57,18 +57,23 @@ export default class DrawioPlugin extends Plugin {
   }
 
   async resolveBaseUrl(): Promise<string> {
-    if (this.settings.drawioMode === 'custom' && this.settings.customDrawioUrl) {
+    const mode = this.settings.drawioMode;
+    if (mode === 'custom' && this.settings.customDrawioUrl) {
       return this.settings.customDrawioUrl;
     }
-    const indexPath = join(this.pluginDir(), 'webapp', 'index.html');
-    if (!existsSync(indexPath)) {
-      const msg = 'Drawio: bundled editor not found. Copy the plugin\'s "webapp" folder into its plugin directory (or run "npm run fetch-drawio" when developing).';
-      new Notice(msg, 10000);
-      throw new Error(msg);
+    if (mode === 'offline') {
+      const indexPath = join(this.pluginDir(), 'webapp', 'index.html');
+      if (!existsSync(indexPath)) {
+        const msg = 'Drawio: offline editor not found. Run "npm run fetch-drawio" and copy the "webapp" folder into the plugin directory, or switch "Editor source" to Online in settings.';
+        new Notice(msg, 10000);
+        throw new Error(msg);
+      }
+      const port = await this.server.ensureStarted();
+      this.server.touch();
+      return `http://127.0.0.1:${port}/index.html`;
     }
-    const port = await this.server.ensureStarted();
-    this.server.touch();
-    return `http://127.0.0.1:${port}/index.html`;
+    // 'online' (and 'custom' with no URL set) → the hosted diagrams.net embed.
+    return ONLINE_DRAWIO_URL;
   }
 
   isDark(): boolean {

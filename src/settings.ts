@@ -1,4 +1,4 @@
-export type DrawioMode = 'offline' | 'custom';
+export type DrawioMode = 'online' | 'offline' | 'custom';
 export type StoreFormat = 'xml' | 'compressed';
 
 export interface DrawioSettings {
@@ -13,7 +13,7 @@ export interface DrawioSettings {
 }
 
 export const DEFAULT_SETTINGS: DrawioSettings = {
-  drawioMode: 'offline',
+  drawioMode: 'online',
   customDrawioUrl: '',
   serverPortMin: 3000,
   serverPortMax: 3999,

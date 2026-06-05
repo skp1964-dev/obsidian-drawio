@@ -2,6 +2,9 @@ export const DRAWIO_VIEW_TYPE = 'drawio-file-view';
 export const DRAWIO_CODE_BLOCK_LANG = 'drawio';
 export const DRAWIO_FILE_EXT = 'drawio';
 
+/** Hosted drawio embed, used when the editor source is "Online" (the default). */
+export const ONLINE_DRAWIO_URL = 'https://embed.diagrams.net/';
+
 /** Default empty mxfile diagram. */
 export const EMPTY_DIAGRAM =
   '<mxfile><diagram id="0" name="Page-1"><mxGraphModel dx="800" dy="600" grid="1" ' +

@@ -1,10 +1,10 @@
 {
-  "id": "obsidian-drawio",
+  "id": "drawio",
   "name": "Drawio",
   "version": "0.1.0",
   "minAppVersion": "1.0.0",
-  "description": "Embed, preview and edit drawio diagrams in Obsidian, fully offline.",
+  "description": "Embed, preview, and edit draw.io diagrams directly in your notes.",
   "author": "doge-liang",
-  "authorUrl": "https://github.com/doge-liang/obsidian-drawio",
+  "authorUrl": "https://github.com/doge-liang",
   "isDesktopOnly": true
 }
