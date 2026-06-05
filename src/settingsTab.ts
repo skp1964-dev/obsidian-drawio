@@ -14,7 +14,7 @@ export class DrawioSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Editor source')
-      .setDesc('Online loads the editor from diagrams.net (no setup). Offline uses a bundled webapp served locally (run "npm run fetch-drawio" first). Or point at a custom embed URL.')
+      .setDesc('Offline (default) uses the bundled editor served locally — fully offline, no network. Online loads the editor from diagrams.net. Or point at a custom embed URL. If Offline is selected but the bundled webapp isn\'t installed, the online editor is used automatically.')
       .addDropdown((d) => d
         .addOption('online', 'Online (diagrams.net)')
         .addOption('offline', 'Offline (bundled webapp)')

@@ -11,6 +11,8 @@ import { DRAWIO_VIEW_TYPE, DRAWIO_FILE_EXT, EMPTY_DIAGRAM, ONLINE_DRAWIO_URL } f
 export default class DrawioPlugin extends Plugin {
   settings!: DrawioSettings;
   server!: ServerManager;
+  /** Show the "offline editor missing, using online" notice only once. */
+  private warnedOfflineFallback = false;
 
   async onload() {
     await this.loadSettings();
@@ -65,14 +67,21 @@ export default class DrawioPlugin extends Plugin {
     }
     if (mode === 'offline') {
       const indexPath = join(this.pluginDir(), 'webapp', 'index.html');
-      if (!existsSync(indexPath)) {
-        const msg = 'Drawio: offline editor not found. Run "npm run fetch-drawio" and copy the "webapp" folder into the plugin directory, or switch "Editor source" to Online in settings.';
-        new Notice(msg, 10000);
-        throw new Error(msg);
+      if (existsSync(indexPath)) {
+        const port = await this.server.ensureStarted();
+        this.server.touch();
+        return `http://127.0.0.1:${port}/index.html`;
       }
-      const port = await this.server.ensureStarted();
-      this.server.touch();
-      return `http://127.0.0.1:${port}/index.html`;
+      // No bundled webapp (e.g. a community-store install, where the ~145 MB
+      // webapp can't ship). Fall back to the online editor so it still works.
+      if (!this.warnedOfflineFallback) {
+        this.warnedOfflineFallback = true;
+        new Notice(
+          'Drawio: the bundled offline editor isn\'t installed — using the online editor (diagrams.net). See the README to enable the offline editor.',
+          8000,
+        );
+      }
+      return ONLINE_DRAWIO_URL;
     }
     // 'online' (and 'custom' with no URL set) → the hosted diagrams.net embed.
     return ONLINE_DRAWIO_URL;

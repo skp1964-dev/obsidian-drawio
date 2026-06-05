@@ -1,19 +1,19 @@
 # Obsidian Drawio
 
-Embed, preview, and edit [draw.io](https://www.drawio.com/) (diagrams.net) diagrams directly in your notes. Works online out of the box, or fully offline with a bundled editor.
+Embed, preview, and edit [draw.io](https://www.drawio.com/) (diagrams.net) diagrams directly in your notes. Fully offline by default with a bundled editor; falls back to the online diagrams.net editor when the bundle isn't installed.
 
 ## Features
 
 - **Code blocks**: store diagram XML inline in a ` ```drawio ` block, preview it as SVG (in both editing and reading views), and click to edit it in a full-screen modal.
 - **Standalone `.drawio` files**: open a `.drawio` file in a dedicated tab with the drawio editor embedded inline (Excalidraw-style), edited directly in place.
 - **Embeds**: embed a diagram file in any note with `![[diagram.drawio]]`; it renders inline in both editing and reading views, and click opens a quick-edit modal.
-- **Online or offline editor**: by default the editor is loaded from diagrams.net (no setup). Switch to a bundled, fully offline editor (served from a local HTTP server) or any custom embed URL in settings.
+- **Offline or online editor**: by default the editor is the bundled, fully offline build (served from a local HTTP server) embedded in the tab. If the bundled webapp isn't installed it automatically falls back to the online diagrams.net editor, so it works out of the box either way. A custom embed URL is also supported.
 - **Readable storage**: diagrams are saved as uncompressed, pretty-printed multi-line XML, so the underlying source stays diff-friendly and readable.
 - **Theme-aware**: the editor follows Obsidian's light/dark theme.
 
 ## Network use
 
-By default this plugin loads the draw.io editor UI from **diagrams.net** (`https://embed.diagrams.net/`) when you open the editor. Your diagram content stays on your device — it is passed to the editor in the page and is **not uploaded** — but the editor's assets are fetched over the network. To avoid all network use, switch **Editor source** to **Offline** in settings (see below). Diagram **previews** never use the network: they are rendered by drawio's `viewer.min.js`, which is bundled into the plugin.
+With the **bundled offline editor** (the default when installed), this plugin makes **no network requests** — the editor is served from a local `127.0.0.1` HTTP server. If the bundled webapp isn't present, the editor falls back to loading the UI from **diagrams.net** (`https://embed.diagrams.net/`); in that case your diagram content still stays on your device (it is passed to the editor in the page and is **not uploaded**), but the editor's assets are fetched over the network. You can also explicitly choose **Online** or a **Custom URL** in settings. Diagram **previews** never use the network: they are rendered by drawio's `viewer.min.js`, which is bundled into the plugin.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ By default this plugin loads the draw.io editor UI from **diagrams.net** (`https
 
 ## Install
 
-- **From the Community Plugins store**: install **Drawio** and enable it. The editor works immediately in Online mode — no extra setup.
+- **From the Community Plugins store**: install **Drawio** and enable it. The bundled offline webapp isn't part of the store download, so the editor automatically uses the online diagrams.net editor — it works immediately, no extra setup. To switch to the fully offline editor, see below.
 
 ### Offline editor (optional)
 
@@ -42,7 +42,7 @@ The Online editor needs a network connection. For a fully offline editor, build 
 
 ## Settings
 
-- **Editor source** — Online (diagrams.net, default), Offline (bundled webapp), or a Custom URL.
+- **Editor source** — Offline (bundled webapp, default), Online (diagrams.net), or a Custom URL. Offline falls back to Online automatically when the bundled webapp isn't installed.
 - **Custom drawio URL** — used when Editor source is "Custom URL" (e.g. `https://embed.diagrams.net/`).
 - **Follow Obsidian theme** — match the editor to light/dark.
 - **Show shape libraries** — toggle the editor's shape panel.

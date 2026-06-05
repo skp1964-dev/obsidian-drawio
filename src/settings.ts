@@ -13,7 +13,7 @@ export interface DrawioSettings {
 }
 
 export const DEFAULT_SETTINGS: DrawioSettings = {
-  drawioMode: 'online',
+  drawioMode: 'offline',
   customDrawioUrl: '',
   serverPortMin: 3000,
   serverPortMax: 3999,
