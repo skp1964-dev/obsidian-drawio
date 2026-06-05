@@ -43,7 +43,9 @@ export default class DrawioPlugin extends Plugin {
   }
 
   onunload() {
-    this.app.workspace.detachLeavesOfType(DRAWIO_VIEW_TYPE);
+    // Don't detach the plugin's leaves here: doing so resets the view to its
+    // default location on next load, discarding where the user moved it. The
+    // local server is stopped via the cleanup registered in onload().
     this.server?.stop();
   }
 
