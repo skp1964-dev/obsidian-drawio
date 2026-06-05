@@ -4,10 +4,11 @@ Embed, preview, and edit [drawio](https://www.drawio.com/) diagrams in Obsidian 
 
 ## Features
 
-- **Code blocks**: store diagram XML inline in a ` ```drawio ` block, preview it as SVG in reading mode, and edit it in a full-screen modal.
-- **Standalone `.drawio` files**: open a `.drawio` file in a dedicated view with an SVG preview + Edit button.
-- **Embeds**: embed a diagram file in any note with `![[diagram.drawio]]`.
+- **Code blocks**: store diagram XML inline in a ` ```drawio ` block, preview it as SVG (in both editing and reading views), and click to edit it in a full-screen modal.
+- **Standalone `.drawio` files**: open a `.drawio` file in a dedicated tab with the drawio editor embedded inline (Excalidraw-style), edited directly in place.
+- **Embeds**: embed a diagram file in any note with `![[diagram.drawio]]`; it renders inline in both editing and reading views, and click opens a quick-edit modal.
 - **Offline-first**: a bundled drawio editor served from a local HTTP server — no internet required. Optionally point at a custom/online drawio embed URL instead.
+- **Readable storage**: diagrams are saved as uncompressed, pretty-printed multi-line XML, so the underlying source stays diff-friendly and readable.
 - **Theme-aware**: the editor follows Obsidian's light/dark theme.
 
 ## Requirements
@@ -24,10 +25,10 @@ Embed, preview, and edit [drawio](https://www.drawio.com/) diagrams in Obsidian 
 
 ## Usage
 
-- **New diagram file**: run the command **"Create new drawio diagram"** — it creates and opens an `Untitled Diagram <timestamp>.drawio` file.
-- **Inline diagram**: add a ` ```drawio ` code block (paste drawio XML, or start empty and edit). In reading mode it renders as a preview with an Edit button.
+- **New diagram file**: run the command **"Create new drawio diagram"** — it creates and opens an `Untitled Diagram <timestamp>.drawio` file with the editor embedded in the tab.
+- **Inline diagram**: add a ` ```drawio ` code block (paste drawio XML, or start empty and edit). It renders as a preview in both editing and reading views.
 - **Embed a file**: `![[your-diagram.drawio]]` in any note.
-- Click the **Edit** (pencil) button on any preview to open the editor. Changes autosave back to the source (the code block, or the file).
+- **To edit**, click anywhere on a preview (a centered **Edit** hint appears on hover) to open the editor; standalone `.drawio` files open the editor directly in their tab. Changes autosave back to the source (the code block, or the file).
 
 ## Settings
 
@@ -46,10 +47,11 @@ Embed, preview, and edit [drawio](https://www.drawio.com/) diagrams in Obsidian 
 ## Notes & limitations
 
 - **Bundle size**: `main.js` includes drawio's `viewer.min.js` (~2.3 MB) inlined for offline previews, so the built `main.js` is ~2.4 MB. This is expected.
-- **Embed refresh**: an `![[file.drawio]]` preview refreshes when the containing note re-renders. Editing via the embed's own Edit button triggers that re-render. A `.drawio` file changed by an external program won't live-refresh an already-open note until it re-renders.
-- **Embed subpaths**: `![[file.drawio#something]]` (with a `#` suffix) is not recognized as a drawio embed and falls back to Obsidian's default rendering. Use a plain `![[file.drawio]]`.
+- **Multi-page diagrams**: a code-block or embed **preview shows only the first page** of a multi-page diagram. Click to edit to reach the other pages (the editor shows all page tabs).
+- **Embed refresh**: an `![[file.drawio]]` embed re-renders automatically when the file is modified (including edits made through this plugin elsewhere).
+- **Multi-page embed subpaths**: a page selector like `![[file.drawio#Page-2]]` is ignored — the embed always shows the first page.
 - **Desktop only**: see Requirements above.
-- **Security**: rendered SVG previews are sanitized (DOMPurify) and the local server binds to `127.0.0.1` only, serving solely the bundled `webapp/` directory.
+- **Security**: rendered SVG previews are sanitized before insertion — `<script>`/embedding elements, inline event handlers, script-bearing URL schemes (normalised to defeat control-character obfuscation), external `<use>` references, SMIL attribute injection, and dangerous CSS are removed, while drawio's `foreignObject` text labels are preserved. The local server binds to `127.0.0.1` only and serves solely the bundled `webapp/` directory.
 
 ## License
 
