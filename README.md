@@ -61,7 +61,7 @@ The Online editor needs a network connection. For a fully offline editor, build 
 - **Embed refresh**: an `![[file.drawio]]` embed re-renders automatically when the file is modified (including edits made through this plugin elsewhere).
 - **Multi-page embed subpaths**: a page selector like `![[file.drawio#Page-2]]` is ignored — the embed always shows the first page.
 - **Desktop only**: see Requirements above.
-- **Security**: rendered SVG previews are sanitized before insertion — `<script>`/embedding elements, inline event handlers, script-bearing URL schemes (normalised to defeat control-character obfuscation), external `<use>` references, SMIL attribute injection, and dangerous CSS are removed, while drawio's `foreignObject` text labels are preserved. In Offline mode the local server binds to `127.0.0.1` only and serves solely the bundled `webapp/` directory.
+- **Security**: rendered SVG previews are sanitized before insertion — `<script>`/embedding elements, inline event handlers, script-bearing URL schemes (normalised to defeat control-character obfuscation), external `<use>` references, SMIL attribute injection, and dangerous CSS are removed, while drawio's `foreignObject` text labels are preserved. The bundled drawio preview engine (`viewer.min.js`) is run in the page's global scope without injecting a `<script>` element, and its one external-script loader (a MathJax-from-CDN helper, unused by offline previews) is stripped at build time — so previews fetch and execute no external code. In Offline mode the local server binds to `127.0.0.1` only and serves solely the bundled `webapp/` directory.
 
 ## License
 
