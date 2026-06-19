@@ -219,7 +219,7 @@ main() {
     esac
   done
 
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 
   # --list: show vaults and exit
   if $LIST_ONLY; then
